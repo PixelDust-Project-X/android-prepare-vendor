@@ -549,6 +549,7 @@
       "overlays-dir": "overlays-api26-full",
       "system-bytecode": [
         "system/app/VZWAPNLib/VZWAPNLib.apk",
+        "system/framework/com.google.android.camera.experimental2016.jar",
         "system/framework/VerizonUnifiedSettings.jar",
         "system/priv-app/AppDirectedSMSService/AppDirectedSMSService.apk",
         "system/priv-app/CarrierSetup/CarrierSetup.apk",
@@ -577,6 +578,7 @@
         "system/etc/permissions/com.android.sdm.plugins.sprintdm.xml",
         "system/etc/permissions/com.android.vzwomatrigger.xml",
         "system/etc/permissions/com.customermobile.preload.vzw.xml",
+        "system/etc/permissions/com.google.android.camera.experimental2016.xml",
         "system/etc/permissions/com.verizon.apn.xml",
         "system/etc/permissions/com.verizon.embms.xml",
         "system/etc/permissions/com.verizon.llkagent.xml",
