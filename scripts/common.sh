@@ -115,5 +115,12 @@ jqIncRawArray() {
     echo "[-] json raw string array parse failed" >&2
     abort 1
   }
+}
 
+shasum1() {
+  [[ "$(uname -s)" = Darwin ]] && shasum -a1 $1 || sha1sum $1
+}
+
+shasum256() {
+  [[ "$(uname -s)" = Darwin ]] && shasum -a256 $1 || sha256sum $1
 }

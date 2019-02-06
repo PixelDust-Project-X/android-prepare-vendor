@@ -9,8 +9,9 @@ set -u # fail on undefined variable
 
 readonly SCRIPTS_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly TMP_WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}"/android_prepare_vendor.XXXXXX) || exit 1
-declare -a SYS_TOOLS=("mkdir" "dirname" "date" "touch" "wget" "mount" "shasum" "unzip")
 readonly HOST_OS="$(uname -s)"
+declare -a SYS_TOOLS=("mkdir" "dirname" "date" "touch" "wget" "mount" "unzip")
+[[ "$HOST_OS" = Darwin ]] && declare -a SYS_TOOLS+=("shasum") || declare -a SYS_TOOLS+=("sha256sum")
 
 # Realpath implementation in bash (required for macOS support)
 readonly REALPATH_SCRIPT="$SCRIPTS_ROOT/scripts/realpath.sh"
@@ -159,7 +160,7 @@ needs_oatdump_update() {
   local deps_zip deps_cur_sig deps_latest_sig
 
   deps_zip="$SCRIPTS_ROOT/hostTools/$HOST_OS/api-$api_level/oatdump_deps.zip"
-  deps_cur_sig=$(shasum -a256 "$deps_zip" | cut -d ' ' -f1)
+  deps_cur_sig=$(shasum256 "$deps_zip" | cut -d ' ' -f1)
   if [[ "$HOST_OS" == "Darwin" ]]; then
     deps_latest_sig="D_OATDUMP_API$api_level""_SIG"
   else
