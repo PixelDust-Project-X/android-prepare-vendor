@@ -111,16 +111,6 @@ get_bootloader_ver() {
   echo "$bootloader_ver"
 }
 
-get_build_id() {
-  local build_id=""
-  build_id=$(grep 'ro.build.id' "$1" | cut -d '=' -f2 || true)
-  if [[ "$build_id" == "" ]]; then
-    echo "[-] Failed to identify BUILD_ID"
-    abort 1
-  fi
-  echo "$build_id"
-}
-
 has_partition_size() {
   local search_file="$2/${1}_partition_size"
   if [ -f "$search_file" ]; then
@@ -1030,11 +1020,6 @@ gen_android_mk() {
 
     echo "ifeq (\$(TARGET_DEVICE),$targetProductDevice)"
     echo ""
-    echo "expected_build_id := \$(shell cat vendor/$VENDOR_DIR/$DEVICE/build_id.txt)"
-    echo 'ifneq ($(BUILD_ID),$(expected_build_id))'
-    echo '    $(error "Expected BUILD_ID is $(expected_build_id) and currently building with $(BUILD_ID)")'
-    echo 'endif'
-    echo ""
     echo "include vendor/$VENDOR_DIR/$DEVICE/AndroidBoardVendor.mk"
   } >> "$ANDROID_MK"
 
@@ -1216,7 +1201,8 @@ else
   RADIO_VER=$(get_radio_ver "$INPUT_DIR/system/build.prop")
   BOOTLOADER_VER=$(get_bootloader_ver "$INPUT_DIR/system/build.prop")
 fi
-BUILD_ID=$(get_build_id "$INPUT_DIR/system/build.prop")
+RADIO_VER=$(get_radio_ver "$INPUT_DIR/system/build.prop")
+BOOTLOADER_VER=$(get_bootloader_ver "$INPUT_DIR/system/build.prop")
 if [[ "$EXTRA_IMGS_LIST" != "" ]]; then
   readarray -t EXTRA_IMGS < <(echo "$EXTRA_IMGS_LIST")
 fi
@@ -1359,11 +1345,6 @@ fi
 # dont disable MVS, CarrierConfig doesn't properly enable it
 VERMIPS='<disabled-until-used-preinstalled-carrier-app package="com.verizon.mips.services" />'
 sed -i 's%'"$VERMIPS"'%<!-- '"$VERMIPS"' -->%' $outDir_prop/etc/sysconfig/nexus.xml
-
-# Can be used from AOSP build infrastructure to verify that build is performed
-# against a matching factory images vendor blobs extract
-echo "[*] Generating build_id file"
-echo "$BUILD_ID" > "$OUTPUT_VENDOR/build_id.txt"
 
 if [[ "$AOSP_ROOT" != "" ]]; then
   mkdir -p "$AOSP_ROOT/vendor/$VENDOR_DIR/$DEVICE"
