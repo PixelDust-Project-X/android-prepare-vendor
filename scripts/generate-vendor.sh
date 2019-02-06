@@ -179,9 +179,9 @@ copy_radio_files() {
 extract_blobs() {
   local blobsList="$1"
   local inDir="$2"
-  local outDir_prop="$3/proprietary"
   local outDir_vendor="$3/vendor"
   local outDir_product="$3/product"
+  outDir_prop="$3/proprietary"
 
   local src="" dst="" dstDir="" outBase="" outPath="" openTag=""
 
@@ -1369,6 +1369,10 @@ fi
 # Generate file signatures list
 echo "[*] Generating signatures file"
 gen_sigs_file "$OUTPUT_DIR" "$OUTPUT_VENDOR/file_signatures.txt"
+
+# dont disable MVS, CarrierConfig doesn't properly enable it
+VERMIPS='<disabled-until-used-preinstalled-carrier-app package="com.verizon.mips.services" />'
+sed -i 's%'"$VERMIPS"'%<!-- '"$VERMIPS"' -->%' $outDir_prop/etc/sysconfig/nexus.xml
 
 # Can be used from AOSP build infrastructure to verify that build is performed
 # against a matching factory images vendor blobs extract
