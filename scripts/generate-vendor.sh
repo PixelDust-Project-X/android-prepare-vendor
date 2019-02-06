@@ -15,7 +15,6 @@ readonly COMMON_SCRIPT="$SCRIPTS_DIR/common.sh"
 readonly TMP_WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}"/android_vendor_setup.XXXXXX) || exit 1
 readonly HOST_OS="$(uname -s)"
 declare -a SYS_TOOLS=("cp" "sed" "zipinfo" "jarsigner" "awk")
-[[ "$HOST_OS" = Darwin ]] && declare -a SYS_TOOLS+=("shasum") || declare -a SYS_TOOLS+=("sha1sum")
 
 # Standalone symlinks. Need to also take care standalone firmware bin
 # symlinks between /data/misc & /system/etc/firmware.
@@ -1086,17 +1085,6 @@ strip_trail_slash_from_file() {
   mv "$inFile.tmp" "$inFile"
 }
 
-gen_sigs_file() {
-  local inDir="$1"
-  local sigsFile="$2"
-  > "$sigsFile"
-
-  find "$inDir"/vendor* -type f ! -name "file_signatures.txt" | sort | while read -r file
-  do
-    shasum1 "$file" | sed "s#$inDir/##" >> "$sigsFile"
-  done
-}
-
 setOverlaysDir() {
   local relDir
   relDir="$(jqRawStr "$API_LEVEL" "$CONFIG_TYPE" "overlays-dir" "$CONFIG_FILE")"
@@ -1367,10 +1355,6 @@ mv "$BLOBS_LIST.tmp" "$BLOBS_LIST"
 if [[ "$VENDOR" == "google" ]]; then
   update_ab_ota_partitions "$DEVICE_VENDOR_MK"
 fi
-
-# Generate file signatures list
-echo "[*] Generating signatures file"
-gen_sigs_file "$OUTPUT_DIR" "$OUTPUT_VENDOR/file_signatures.txt"
 
 # dont disable MVS, CarrierConfig doesn't properly enable it
 VERMIPS='<disabled-until-used-preinstalled-carrier-app package="com.verizon.mips.services" />'
