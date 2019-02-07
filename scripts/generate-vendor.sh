@@ -466,8 +466,7 @@ gen_board_family_cfg_mk() {
   fi
 
   {
-    echo "# [$EXEC_DATE] Auto-generated file, do not edit"
-    echo ""
+    printLicense
     echo "ifneq (\$(filter $minorTarget,\$(TARGET_DEVICE)),)"
     echo "  LOCAL_STEM := $minorTarget/BoardConfigVendorPartial.mk"
     echo "else"
@@ -1086,6 +1085,23 @@ initConfig() {
   > "$mkFile"
 }
 
+printLicense() {
+echo "# Copyright (C) $(date +%Y) The PixelDust Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"
+}
+
 trap "abort 1" SIGINT SIGTERM
 . "$REALPATH_SCRIPT"
 . "$CONSTS_SCRIPT"
@@ -1256,9 +1272,8 @@ initConfig "$ANDROID_BOARD_VENDOR_MK"
 initConfig "$ANDROID_MK"
 
 # And prefix them
-find "$OUTPUT_DIR/vendor/$VENDOR_DIR" -type f -name '*.mk' | while read -r file
-do
-  echo -e "# [$EXEC_DATE] Auto-generated file, do not edit\n" > "$file"
+find "$OUTPUT_DIR/vendor/$VENDOR_DIR" -type f -name '*.mk' | while read -r file; do
+  printLicense > "$file"
 done
 
 # Update from DSO_MODULES array from DEP_DSO_BLOBS_LIST
