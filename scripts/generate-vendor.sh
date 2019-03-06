@@ -657,7 +657,7 @@ gen_mk_for_bytecode() {
 
   while read -r file
   do
-    relPkgDir="$(dirname "$file" | sed -e "s#$outBase/$relRoot/$relSubRoot##g")"
+    relPkgDir="$(dirname "$file" | sed -e "s#$outBase/$relRoot/$relSubRoot/##g")"
     zipName=$(basename "$file")
     fileExt="${zipName##*.}"
     pkgName=$(basename "$file" ".$fileExt")
@@ -782,12 +782,12 @@ gen_mk_for_bytecode() {
         has_bc_file=false
       fi
 
-      if [[ "$ALLOW_PREOPT" = false || "$has_bc_file" = false || "$relSubRoot" =~ ^overlay/.* ]]; then
+      if [[ "$ALLOW_PREOPT" = false || "$has_bc_file" = false || "$relSubRoot" = overlay ]]; then
         echo "LOCAL_DEX_PREOPT := false"
       fi
 
       # Annotate overlay APKs
-      if [[ "$relSubRoot" =~ ^overlay/.* ]]; then
+      if [[ "$relSubRoot" =~ overlay ]]; then
         echo "LOCAL_IS_RUNTIME_RESOURCE_OVERLAY := true"
       fi
 
