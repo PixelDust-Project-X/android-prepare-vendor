@@ -491,6 +491,8 @@
       "overlays-dir": "overlays-api26-naked",
       "system-bytecode": [
         "system/app/ims/ims.apk",
+        "system/framework/LowPowerMonitorDeviceStub.jar",
+        "system/framework/LowPowerMonitorDeviceInterface.jar",
         "system/framework/PowerAnomalyDataModemInterface.jar",
         "system/framework/PowerAnomalyStub.jar",
         "system/framework/qcrilhook.jar",
