@@ -72,7 +72,6 @@ cat <<_EOF
       --deodex-all : [OPTIONAL] De-optimize all packages under /system (default: false)
       --force-vimg : [OPTIONAL] Force factory extracted blobs under /vendor to be always used regardless AOSP definitions (default: false)
       --timestamp  : [OPTIONAL] Timestamp to use for all extracted bytecode files (seconds since Epoch)
-      --no-radio  : [OPTIONAL] Don't copy radio images
 
     INFO:
       * Default configuration is naked. Use "-f|--full" if you plan to install Google Play Services
@@ -418,9 +417,6 @@ do
       TIMESTAMP="$2"
       shift
       ;;
-    --no-radio)
-      NO_RADIO=true
-      ;;
     *)
       echo "[-] Invalid argument '$1'"
       usage
@@ -542,9 +538,6 @@ if [ "$USE_DEBUGFS" = true ]; then
   EXTRACT_SCRIPT_ARGS+=( --debugfs)
 elif [ "$USE_FUSEEXT2" = true ]; then
   EXTRACT_SCRIPT_ARGS+=( --fuse-ext2)
-fi
-if [[ -n $NO_RADIO ]]; then
-  EXTRACT_SCRIPT_ARGS+=( --no-radio)
 fi
 
 $EXTRACT_SCRIPT "${EXTRACT_SCRIPT_ARGS[@]}" --conf-file "$CONFIG_FILE" || {
@@ -698,22 +691,17 @@ if [[ -f "$FACTORY_IMGS_DATA/product_partition_size" ]]; then
 fi
 
 # Make radio files available to vendor generate script
-if [[ -z $NO_RADIO ]]; then
-    ln -s "$FACTORY_IMGS_DATA/radio" "$FACTORY_IMGS_R_DATA/radio"
-fi
+ln -s "$FACTORY_IMGS_DATA/radio" "$FACTORY_IMGS_R_DATA/radio"
 
 VGEN_SCRIPT_EXTRA_ARGS=(--conf-type "$CONFIG_TYPE")
-if [[ $FORCE_PREOPT = true ]]; then
+if [ $FORCE_PREOPT = true ]; then
   VGEN_SCRIPT_EXTRA_ARGS+=( --allow-preopt)
 fi
-if [[ $FORCE_VIMG = true ]]; then
+if [ $FORCE_VIMG = true ]; then
   VGEN_SCRIPT_EXTRA_ARGS+=( --force-vimg)
 fi
 if [[ "$AOSP_ROOT" != "" ]]; then
   VGEN_SCRIPT_EXTRA_ARGS+=( --aosp-root "$AOSP_ROOT")
-fi
-if [[ -n $NO_RADIO ]]; then
-  VGEN_SCRIPT_EXTRA_ARGS+=( --no-radio)
 fi
 
 $VGEN_SCRIPT --input "$FACTORY_IMGS_R_DATA" \

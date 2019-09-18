@@ -372,19 +372,17 @@ update_dev_vendor_mk() {
 gen_board_vendor_mk() {
   {
     echo 'LOCAL_PATH := $(call my-dir)'
-    if [[ -z $NO_RADIO ]]; then
-      echo ""
-      echo "\$(call add-radio-file,radio/bootloader.img,version-bootloader)"
-      if [[ "$RADIO_VER" != "" ]]; then
-        echo "\$(call add-radio-file,radio/radio.img,version-baseband)"
-      fi
+    echo ""
+    echo "\$(call add-radio-file,radio/bootloader.img,version-bootloader)"
+    if [[ "$RADIO_VER" != "" ]]; then
+      echo "\$(call add-radio-file,radio/radio.img,version-baseband)"
+    fi
 
-      if [[ "$VENDOR" == "google" && "$EXTRA_IMGS_LIST" != "" ]]; then
-        for img in "${EXTRA_IMGS[@]}"
-        do
-          echo "\$(call add-radio-file,radio/$img.img)"
-        done
-      fi
+    if [[ "$VENDOR" == "google" && "$EXTRA_IMGS_LIST" != "" ]]; then
+      for img in "${EXTRA_IMGS[@]}"
+      do
+        echo "\$(call add-radio-file,radio/$img.img)"
+      done
     fi
   } >> "$ANDROID_BOARD_VENDOR_MK"
 }
@@ -971,11 +969,10 @@ update_ab_ota_partitions() {
   {
     echo "# Partitions to add in AB OTA images"
     echo 'AB_OTA_PARTITIONS += vendor \'
-    if [[ -z $NO_RADIO ]]; then
-      for partition in "${EXTRA_IMGS[@]}"; do
-        echo "    $partition \\"
-      done
-    fi
+    for partition in "${EXTRA_IMGS[@]}"
+    do
+      echo "    $partition \\"
+    done
   }  >> "$outMk"
   strip_trail_slash_from_file "$outMk"
 }
@@ -1144,9 +1141,6 @@ do
     --force-vimg)
       FORCE_VIMG=true
       ;;
-  --no-radio)
-      NO_RADIO=true
-      ;;
     *)
       echo "[-] Invalid argument '$1'"
       usage
@@ -1254,10 +1248,8 @@ if [[ "$DEP_DSO_BLOBS_LIST" != "" ]]; then
 fi
 
 # Copy radio images
-if [[ -z $NO_RADIO ]]; then
-  echo "[*] Copying radio files '$OUTPUT_VENDOR'"
-  copy_radio_files "$INPUT_DIR" "$OUTPUT_VENDOR"
-fi
+echo "[*] Copying radio files '$OUTPUT_VENDOR'"
+copy_radio_files "$INPUT_DIR" "$OUTPUT_VENDOR"
 
 # Generate $DEVICE-vendor-blobs.mk makefile (plain files that don't require a target module)
 # Will be updated later
@@ -1287,11 +1279,9 @@ fi
 # Generate AndroidBoardVendor.mk with radio stuff (baseband & bootloader)
 echo "[*] Generating 'AndroidBoardVendor.mk'"
 gen_board_vendor_mk
-if [[ -z $NO_RADIO ]]; then
-  echo "  [*] Bootloader:$BOOTLOADER_VER"
-  if [[ "$RADIO_VER" != "" ]]; then
-    echo "  [*] Baseband:$RADIO_VER"
-  fi
+echo "  [*] Bootloader:$BOOTLOADER_VER"
+if [[ "$RADIO_VER" != "" ]]; then
+  echo "  [*] Baseband:$RADIO_VER"
 fi
 
 # Generate BoardConfigVendor.mk (vendor partition type)

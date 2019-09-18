@@ -227,9 +227,6 @@ do
     --fuse-ext2)
       USE_FUSEEXT2=true
       ;;
-  --no-radio)
-      NO_RADIO=true
-      ;;
     *)
       echo "[-] Invalid argument '$1'"
       usage
@@ -305,12 +302,10 @@ if [ -d "$PRODUCT_DATA_OUT" ]; then
 fi
 
 RADIO_DATA_OUT="$OUTPUT_DIR/radio"
-if [[ -z $NO_RADIO ]]; then
-  if [ -d "$RADIO_DATA_OUT" ]; then
-    rm -rf "${RADIO_DATA_OUT:?}"/*
-  fi
-  mkdir -p "$RADIO_DATA_OUT"
+if [ -d "$RADIO_DATA_OUT" ]; then
+  rm -rf "${RADIO_DATA_OUT:?}"/*
 fi
+mkdir -p "$RADIO_DATA_OUT"
 
 archiveName="$(basename "$INPUT_ARCHIVE")"
 fileExt="${archiveName##*.}"
@@ -402,28 +397,27 @@ else
 fi
 
 # Copy bootloader & radio images
-if [[ -z $NO_RADIO ]]; then
-  if [ $hasRadioImg = true ]; then
-    mv "$radioImg" "$RADIO_DATA_OUT/" || {
-      echo "[-] Failed to copy radio image"
-      abort 1
-    }
-  fi
-  mv "$bootloaderImg" "$RADIO_DATA_OUT/" || {
-    echo "[-] Failed to copy bootloader image"
+if [ $hasRadioImg = true ]; then
+  mv "$radioImg" "$RADIO_DATA_OUT/" || {
+    echo "[-] Failed to copy radio image"
     abort 1
   }
+fi
+mv "$bootloaderImg" "$RADIO_DATA_OUT/" || {
+  echo "[-] Failed to copy bootloader image"
+  abort 1
+}
 
-  # For Pixel devices with AB partitions layout, copy additional images required for OTA
-  if [[ "$VENDOR" == "google" && "$EXTRA_IMGS_LIST" != "" ]]; then
-    for img in "${EXTRA_IMGS[@]}"; do
-      if [ ! -f "$extractDir/images/$img.img" ]; then
-        echo "[-] Failed to locate '$img.img' in factory image"
-        abort 1
-      fi
-      mv "$extractDir/images/$img.img" "$RADIO_DATA_OUT/"
-    done
-  fi
+# For Pixel devices with AB partitions layout, copy additional images required for OTA
+if [[ "$VENDOR" == "google" && "$EXTRA_IMGS_LIST" != "" ]]; then
+  for img in "${EXTRA_IMGS[@]}"
+  do
+    if [ ! -f "$extractDir/images/$img.img" ]; then
+      echo "[-] Failed to locate '$img.img' in factory image"
+      abort 1
+    fi
+    mv "$extractDir/images/$img.img" "$RADIO_DATA_OUT/"
+  done
 fi
 
 abort 0
