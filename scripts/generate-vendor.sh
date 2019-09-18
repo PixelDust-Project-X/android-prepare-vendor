@@ -372,7 +372,7 @@ update_dev_vendor_mk() {
 gen_board_vendor_mk() {
   {
     echo 'LOCAL_PATH := $(call my-dir)'
-    if [[ $NO_RADIO = false ]]; then
+    if [[ -z $NO_RADIO ]]; then
       echo ""
       echo "\$(call add-radio-file,radio/bootloader.img,version-bootloader)"
       if [[ "$RADIO_VER" != "" ]]; then
@@ -971,7 +971,7 @@ update_ab_ota_partitions() {
   {
     echo "# Partitions to add in AB OTA images"
     echo 'AB_OTA_PARTITIONS += vendor \'
-    if [[ $NO_RADIO = false ]]; then
+    if [[ -z $NO_RADIO ]]; then
       for partition in "${EXTRA_IMGS[@]}"; do
         echo "    $partition \\"
       done
@@ -1092,7 +1092,6 @@ CONFIG_TYPE="naked"
 API_LEVEL=""
 ALLOW_PREOPT=false
 FORCE_VIMG=false
-NO_RADIO=false
 
 DEVICE_CONFIG_DIR=""
 DEVICE=""
@@ -1255,7 +1254,7 @@ if [[ "$DEP_DSO_BLOBS_LIST" != "" ]]; then
 fi
 
 # Copy radio images
-if [[ $NO_RADIO = false ]]; then
+if [[ -z $NO_RADIO ]]; then
   echo "[*] Copying radio files '$OUTPUT_VENDOR'"
   copy_radio_files "$INPUT_DIR" "$OUTPUT_VENDOR"
 fi
@@ -1288,7 +1287,7 @@ fi
 # Generate AndroidBoardVendor.mk with radio stuff (baseband & bootloader)
 echo "[*] Generating 'AndroidBoardVendor.mk'"
 gen_board_vendor_mk
-if [[ $NO_RADIO = false ]]; then
+if [[ -z $NO_RADIO ]]; then
   echo "  [*] Bootloader:$BOOTLOADER_VER"
   if [[ "$RADIO_VER" != "" ]]; then
     echo "  [*] Baseband:$RADIO_VER"

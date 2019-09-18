@@ -197,7 +197,6 @@ CONFIG_FILE=""
 USE_DEBUGFS=false
 USE_FUSEEXT2=false
 RUNS_WITH_ROOT=false
-NO_RADIO=false
 
 # Compatibility
 HOST_OS=$(uname)
@@ -306,7 +305,7 @@ if [ -d "$PRODUCT_DATA_OUT" ]; then
 fi
 
 RADIO_DATA_OUT="$OUTPUT_DIR/radio"
-if [[ $NO_RADIO = false ]]; then
+if [[ -z $NO_RADIO ]]; then
   if [ -d "$RADIO_DATA_OUT" ]; then
     rm -rf "${RADIO_DATA_OUT:?}"/*
   fi
@@ -403,7 +402,7 @@ else
 fi
 
 # Copy bootloader & radio images
-if [[ $NO_RADIO = false ]]; then
+if [[ -z $NO_RADIO ]]; then
   if [ $hasRadioImg = true ]; then
     mv "$radioImg" "$RADIO_DATA_OUT/" || {
       echo "[-] Failed to copy radio image"
